@@ -42,6 +42,7 @@ def chat(
     )
 
     conversation = Conversation(
+        title=request.prompt[:50],
         user_message=request.prompt,
         ai_response=response,
         agent_id=agent.id,

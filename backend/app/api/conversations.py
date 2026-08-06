@@ -22,3 +22,19 @@ def get_conversations(
     )
 
     return conversations
+
+
+@router.delete("/{agent_id}")
+def delete_conversations(
+    agent_id: int,
+    db: Session = Depends(get_db),
+):
+    db.query(Conversation).filter(
+        Conversation.agent_id == agent_id
+    ).delete()
+
+    db.commit()
+
+    return {
+        "message": "Conversation history deleted."
+    }

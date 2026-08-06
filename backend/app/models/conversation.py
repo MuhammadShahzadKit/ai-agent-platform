@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Text, ForeignKey
+from sqlalchemy import Column, Integer, Text, ForeignKey, String
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
@@ -8,6 +8,11 @@ class Conversation(Base):
     __tablename__ = "conversations"
 
     id = Column(Integer, primary_key=True, index=True)
+
+    title = Column(
+        String(255),
+        nullable=True,
+    )
 
     user_message = Column(
         Text,
@@ -25,7 +30,4 @@ class Conversation(Base):
         nullable=False,
     )
 
-    agent = relationship(
-        "Agent",
-        back_populates="conversations",
-    )
+    agent = relationship("Agent")
