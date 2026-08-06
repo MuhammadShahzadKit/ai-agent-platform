@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
+from app.models.conversation import Conversation
 from app.services.ai_service import chat_with_ai
 from app.services.agent_service import get_agent
 
@@ -34,11 +35,20 @@ def chat(
         )
 
     response = chat_with_ai(
-    prompt=request.prompt,
-    model=agent.model,
-    system_prompt=agent.system_prompt,
-    temperature=agent.temperature,
-)
+        prompt=request.prompt,
+        model=agent.model,
+        system_prompt=agent.system_prompt,
+        temperature=agent.temperature,
+    )
+
+    conversation = Conversation(
+        user_message=request.prompt,
+        ai_response=response,
+        agent_id=agent.id,
+    )
+
+    db.add(conversation)
+    db.commit()
 
     return {
         "agent": agent.name,

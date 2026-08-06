@@ -36,3 +36,9 @@ class Agent(Base):
     )
 
     owner = relationship("User")
+
+    conversations = relationship(
+        "Conversation",
+        back_populates="agent",
+        cascade="all, delete",
+    )
