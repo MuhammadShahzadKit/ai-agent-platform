@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 
 from app.db.session import Base
@@ -7,15 +7,31 @@ from app.db.session import Base
 class Agent(Base):
     __tablename__ = "agents"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
 
-    name = Column(String(100), nullable=False)
+    name = Column(
+        String(100),
+        nullable=False,
+    )
 
-    role = Column(String(100), nullable=False)
+    role = Column(
+        String(100),
+        nullable=False,
+    )
 
-    description = Column(Text, nullable=True)
+    description = Column(
+        Text,
+        nullable=True,
+    )
 
-    system_prompt = Column(Text, nullable=False)
+    system_prompt = Column(
+        Text,
+        nullable=False,
+    )
 
     model = Column(
         String(100),
@@ -26,6 +42,12 @@ class Agent(Base):
     temperature = Column(
         Integer,
         default=1,
+        nullable=False,
+    )
+
+    use_rag = Column(
+        Boolean,
+        default=False,
         nullable=False,
     )
 
@@ -42,6 +64,12 @@ class Agent(Base):
 
     conversations = relationship(
         "Conversation",
+        back_populates="agent",
+        cascade="all, delete-orphan",
+    )
+
+    missions = relationship(
+        "Mission",
         back_populates="agent",
         cascade="all, delete-orphan",
     )

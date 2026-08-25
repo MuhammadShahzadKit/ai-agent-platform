@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import (
     create_access_token,
-    get_current_username,
+    get_current_user,
 )
 from app.db.session import get_db
 from app.schemas.user import (
@@ -90,14 +90,14 @@ def login(
 # ==========================
 # Current User
 # ==========================
-@router.get(
-    "/me",
-)
+@router.get("/me")
 def me(
-    username: str = Depends(get_current_username),
+    current_user=Depends(get_current_user),
 ):
     return {
-        "username": username,
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email,
     }
 
 

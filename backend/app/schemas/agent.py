@@ -10,6 +10,7 @@ class AgentBase(BaseModel):
     system_prompt: str
     model: str = "qwen2.5:3b"
     temperature: int = 1
+    use_rag: bool = False
 
 
 class AgentCreate(AgentBase):
@@ -23,6 +24,7 @@ class AgentUpdate(BaseModel):
     system_prompt: Optional[str] = None
     model: Optional[str] = None
     temperature: Optional[int] = None
+    use_rag: Optional[bool] = None
 
 
 class AgentResponse(AgentBase):

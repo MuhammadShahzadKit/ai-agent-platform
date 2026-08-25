@@ -6,86 +6,112 @@ from app.schemas.agent import AgentCreate, AgentUpdate
 
 def create_agent(
     db: Session,
-    agent: AgentCreate,
+    data: AgentCreate,
     user_id: int,
 ):
-    db_agent = Agent(
-        **agent.model_dump(),
+    agent = Agent(
+        name=data.name,
+        role=data.role,
+        description=data.description,
+        system_prompt=data.system_prompt,
+        model=data.model,
+        temperature=data.temperature,
+        use_rag=data.use_rag,
         user_id=user_id,
     )
 
-    db.add(db_agent)
+    db.add(agent)
     db.commit()
-    db.refresh(db_agent)
+    db.refresh(agent)
 
-    return db_agent
-
-
-def get_agents(db: Session):
-    return db.query(Agent).all()
+    return agent
 
 
-def get_user_agents(
+def get_agents(
     db: Session,
     user_id: int,
 ):
-    return db.query(Agent).filter(
-        Agent.user_id == user_id
-    ).all()
+    return (
+        db.query(Agent)
+        .filter(
+            Agent.user_id == user_id
+        )
+        .all()
+    )
 
 
 def get_agent(
     db: Session,
     agent_id: int,
+    user_id: int,
 ):
-    return db.query(Agent).filter(
-        Agent.id == agent_id
-    ).first()
+    return (
+        db.query(Agent)
+        .filter(
+            Agent.id == agent_id,
+            Agent.user_id == user_id,
+        )
+        .first()
+    )
 
 
 def update_agent(
     db: Session,
     agent_id: int,
-    agent: AgentUpdate,
+    data: AgentUpdate,
+    user_id: int,
 ):
-    db_agent = get_agent(
+    agent = get_agent(
         db,
         agent_id,
+        user_id,
     )
 
-    if not db_agent:
+    if not agent:
         return None
 
-    update_data = agent.model_dump(
-        exclude_unset=True
-    )
+    if data.name is not None:
+        agent.name = data.name
 
-    for key, value in update_data.items():
-        setattr(
-            db_agent,
-            key,
-            value,
-        )
+    if data.role is not None:
+        agent.role = data.role
+
+    if data.description is not None:
+        agent.description = data.description
+
+    if data.system_prompt is not None:
+        agent.system_prompt = data.system_prompt
+
+    if data.model is not None:
+        agent.model = data.model
+
+    if data.temperature is not None:
+        agent.temperature = data.temperature
+
+    if data.use_rag is not None:
+        agent.use_rag = data.use_rag
 
     db.commit()
-    db.refresh(db_agent)
+    db.refresh(agent)
 
-    return db_agent
+    return agent
 
 
 def delete_agent(
     db: Session,
     agent_id: int,
+    user_id: int,
 ):
-    db_agent = get_agent(
+    agent = get_agent(
         db,
         agent_id,
+        user_id,
     )
 
-    if not db_agent:
+    if not agent:
         return None
 
-    db.delete(db_agent)
+    db.delete(agent)
     db.commit()
 
-    return db_agent
+    return agent

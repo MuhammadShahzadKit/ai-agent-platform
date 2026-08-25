@@ -17,3 +17,24 @@ venv/
 # OS
 .DS_Store
 Thumbs.db
+# ==============================
+# Local Runtime / Generated Data
+# ==============================
+backend/.browser_profile/
+backend/uploads/
+backend/generated_videos/
+backend/storage/
+backend/vector_db/
+storage/
+
+# ==============================
+# Frontend Dependencies / Build
+# ==============================
+frontend/node_modules/
+frontend/dist/
+
+# ==============================
+# Local Backups / Archives
+# ==============================
+*.zip
+

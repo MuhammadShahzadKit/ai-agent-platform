@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.core.security import get_current_username
+from app.core.security import get_current_user
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.agent import (
@@ -13,7 +13,6 @@ from app.services.agent_service import (
     create_agent,
     get_agents,
     get_agent,
-    get_user_agents,
     update_agent,
     delete_agent,
 )
@@ -29,18 +28,14 @@ router = APIRouter(
     response_model=AgentResponse,
 )
 def create(
-    agent: AgentCreate,
+    data: AgentCreate,
     db: Session = Depends(get_db),
-    username: str = Depends(get_current_username),
+    current_user: User = Depends(get_current_user),
 ):
-    user = db.query(User).filter(
-        User.username == username
-    ).first()
-
     return create_agent(
-        db=db,
-        agent=agent,
-        user_id=user.id,
+        db,
+        data,
+        current_user.id,
     )
 
 
@@ -50,15 +45,11 @@ def create(
 )
 def read_all(
     db: Session = Depends(get_db),
-    username: str = Depends(get_current_username),
+    current_user: User = Depends(get_current_user),
 ):
-    user = db.query(User).filter(
-        User.username == username
-    ).first()
-
-    return get_user_agents(
+    return get_agents(
         db,
-        user.id,
+        current_user.id,
     )
 
 
@@ -69,15 +60,17 @@ def read_all(
 def read_one(
     agent_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     agent = get_agent(
         db,
         agent_id,
+        current_user.id,
     )
 
     if not agent:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Agent not found",
         )
 
@@ -92,16 +85,18 @@ def update(
     agent_id: int,
     data: AgentUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     agent = update_agent(
         db,
         agent_id,
         data,
+        current_user.id,
     )
 
     if not agent:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Agent not found",
         )
 
@@ -111,21 +106,23 @@ def update(
 @router.delete(
     "/{agent_id}",
 )
-def remove(
+def delete(
     agent_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     agent = delete_agent(
         db,
         agent_id,
+        current_user.id,
     )
 
     if not agent:
         raise HTTPException(
-            status_code=404,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail="Agent not found",
         )
 
     return {
-        "message": "Agent deleted"
+        "message": "Agent deleted successfully"
     }
